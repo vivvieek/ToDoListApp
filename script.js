@@ -45,63 +45,75 @@ function todopage(){
     window.location.href='homepage.html';
 }
 
-
-// Todo List (fetch)
-
-function fetchTodoList() {
+// Todotask
+function fetchTodoData() {
   return new Promise((resolve, reject) => {
     fetch('https://jsonplaceholder.typicode.com/todos')
       .then(response => response.json())
-      .then(data => resolve(data))
-      .catch(error => reject(error));
+      .then(data => {
+        resolve(data);
+      })
+      .catch(error => {
+        reject(error);
+      });
   });
 }
 
-function processTodoList(todoList) {
-  let completedTaskCount = 0;
-  // Update the UI to display todo list items with checkboxes
-  const todoListElement = document.getElementById('output');
-  todoList.forEach(todo => {
-    const listItem = document.createElement('li');
-    // listItem.textContent = todo.id;
-    const label = document.createElement('label');
-    label.textContent = todo.title;
-    listItem.appendChild(label);
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = todo.completed;
-    //checkbox.checked = false;
-    checkbox.addEventListener('change', () => {
-      if (checkbox.checked) {
-        completedTaskCount++;
-      } else {
-        completedTaskCount--;
-      }
-      if (completedTaskCount === 95) {
-        showAlert(completedTaskCount);
-      }
+function validateCompletedTasks() {
+  let completedCount = 0;
+  return new Promise((resolve, reject) => {
+    fetchTodoData()
+      .then(data => {
+        const tableBody = document.querySelector('#todoTable tbody');
+
+        data.forEach(todo => {
+          const row = document.createElement('tr');
+          const idCell = document.createElement('td');
+          const titleCell = document.createElement('td');
+          const completedCell = document.createElement('td');
+          const checkbox = document.createElement('input');
+          const checkboxLabel = document.createElement('label');
+
+          checkbox.type = 'checkbox';
+          checkbox.checked = todo.completed;
+          checkbox.disabled = todo.completed;
+          checkbox.classList.add('checkbox-custom');
+          checkboxLabel.classList.add('checkbox-label');
+          checkboxLabel.appendChild(checkbox);
+
+          checkbox.addEventListener('change', () => {
+            todo.completed = checkbox.checked;
+            if (checkbox.checked) {
+              completedCount++;
+            } else {
+              completedCount--;
+            }
+            if (completedCount === 5) {
+              resolve();
+            }
+          });
+
+          idCell.textContent = todo.id;
+          titleCell.textContent = todo.title;
+          completedCell.appendChild(checkboxLabel);
+
+          row.appendChild(idCell);
+          row.appendChild(titleCell);
+          row.appendChild(completedCell);
+
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+}
+
+validateCompletedTasks()
+  .then(() => {
+    alert('Congrats!! 5 Tasks have been Successfully Completed');
+  })
+  .catch(error =>{
+       console.error('Error:', error);
     });
-    listItem.appendChild(checkbox);
-
-    if (todo.completed) {
-      listItem.style.textDecoration = 'line-through';
-      completedTaskCount++;
-    }
-
-    todoListElement.appendChild(listItem);
-  });
-
-  // Check if there are already 95 completed tasks
-  if (completedTaskCount === 95) {
-    showAlert(completedTaskCount);
-  }
-}
-
-function showAlert(completedTaskCount) {
-  window.alert(`Congratulations ! 5 tasks completed.`);
-}
-
-// Fetch the todo list data from the API and process it
-fetchTodoList()
-  .then(data => processTodoList(data))
-  .catch(error => console.error(error));
