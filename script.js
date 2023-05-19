@@ -46,26 +46,7 @@ function todopage(){
 }
 
 
-// Todo List
-
-// function ajax(){
-//   var xhttp=new XMLHttpRequest();
-//   xhttp.onreadystatechange=function(){
-
-//     if(this.readyState==4 && this.status==200){
-//       var response =JSON.parse(this.responseText);
-//       var output1="";
-//       var output2="";
-//       var output3="";
-//       for(var i=0;i<response.length;i++){
-//         output1 +=response[i].id+" "+response[i].title+"<br>";
-//       }
-//       document.getElementById('output').innerHTML=output1;
-//     }
-//   }
-//   xhttp.open('GET',"https://jsonplaceholder.typicode.com/todos",true);
-//   xhttp.send();
-// }
+// Todo List (fetch)
 
 function fetchTodoList() {
   return new Promise((resolve, reject) => {
@@ -78,17 +59,14 @@ function fetchTodoList() {
 
 function processTodoList(todoList) {
   let completedTaskCount = 0;
-
   // Update the UI to display todo list items with checkboxes
-  const todoListElement = document.getElementById('output2');
+  const todoListElement = document.getElementById('output');
   todoList.forEach(todo => {
     const listItem = document.createElement('li');
     // listItem.textContent = todo.id;
-
     const label = document.createElement('label');
     label.textContent = todo.title;
     listItem.appendChild(label);
-
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = todo.completed;
@@ -99,14 +77,11 @@ function processTodoList(todoList) {
       } else {
         completedTaskCount--;
       }
-
       if (completedTaskCount === 95) {
         showAlert(completedTaskCount);
       }
     });
     listItem.appendChild(checkbox);
-
-
 
     if (todo.completed) {
       listItem.style.textDecoration = 'line-through';
@@ -125,7 +100,6 @@ function processTodoList(todoList) {
 function showAlert(completedTaskCount) {
   window.alert(`Congratulations ! 5 tasks completed.`);
 }
-
 
 // Fetch the todo list data from the API and process it
 fetchTodoList()
